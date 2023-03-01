@@ -12,6 +12,12 @@ function magnitude(vec=[0, 0]){
     return Math.sqrt(magnitude2(vec));
 }
 
+class Vec extends Array {
+    constructor(...x) {
+        super(...(x.length ? x : [0, 0, 0]));
+    }
+}
+
 class Body {
     velocity = [0, 0, 0]
     pos = [0, 0, 0]
@@ -31,15 +37,6 @@ class Body {
     get_field_at_pos(pos=[0,0,0]) {
         const {r, R} = this.calc(pos);
         return r.map(i => i * G * this.mass / Math.pow(R, 3));
-    }
-
-    get_potential_at_pos(pos) {
-        const {r, R2} = this.calc(pos);
-        return r.map(i => i * G * this.mass / R2);
-    }
-
-    get KE(){
-        return this.mass * magnitude2(this.velocity);
     }
 }
 
