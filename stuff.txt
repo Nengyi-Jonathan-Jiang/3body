@@ -1,0 +1,3 @@
+https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
+https://en.wikipedia.org/wiki/Leapfrog_integration
+https://en.wikipedia.org/wiki/Symplectic_integrator
