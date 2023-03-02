@@ -19,6 +19,7 @@ class Vec extends Array {
     plus = other => this.map((s, i) => s + (other[i] ?? 0))
     add = other => other.forEach((s, i) => this[i] = (this[i] ?? 0) + s)
     times = x => this.map(i => i * x)
+    clone = () => this.map(i => i)
 }
 
 class Body {
@@ -107,6 +108,15 @@ function hslToRgb(h, s, l){
 }
 
 const aux = new GLCanvas(document.createElement('canvas'));
+aux.shader = `
+precision mediump float;
+varying vec2 fragCoord;
+void main(){
+    gl_FragColor = vec4(vec3(0.5), 1.0);
+}
+`
+
+document.body.appendChild(aux.canvas);
 
 function render() {
     aux.size = [
@@ -118,9 +128,28 @@ function render() {
     ctx.strokeStyle = "#FFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    aux.render();
     ctx.drawImage(aux.canvas, 0, 0, canvas.width, canvas.height);
 
     for(const body of bodies){
+        // save traj
+        body.traj ||= [];
+        body.traj.push(body.pos.clone());
+        while (body.traj.length > 50) body.traj.shift();
+        ctx.beginPath();
+        ctx.moveTo(
+            body.traj[0][0] * 30 + canvas.clientWidth / 2,
+            body.traj[0][1] * 30 + canvas.clientHeight / 2
+        );
+        for (let [x, y] of body.traj.slice(1)) {
+            ctx.lineTo(
+                x * 30 + canvas.clientWidth / 2,
+                y * 30 + canvas.clientHeight / 2
+            )
+        }
+        ctx.stroke();
+        ctx.closePath();
+
         ctx.beginPath();
         ctx.arc(
             body.pos[0] * 30 + canvas.clientWidth / 2,

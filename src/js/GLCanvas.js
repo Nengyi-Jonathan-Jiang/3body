@@ -17,7 +17,21 @@ class GLCanvas {
         /** @private */
         this.buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW);
+        gl.disable(gl.CULL_FACE);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            // 0, 0,
+            // 1, 0,
+            // 0, 1,
+            // 0, 1,
+            // 1, 0,
+            // 1, 1
+            0, 0,
+            0, 1,
+            1, 0,
+            1, 0,
+            0, 1,
+            1, 1
+        ]), gl.STATIC_DRAW);
 
         this.shader = `
             precision mediump float;
@@ -51,17 +65,26 @@ class GLCanvas {
 
     render() {
         const gl = this.gl;
+        gl.useProgram(this.program);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
     set size(size) {
         [this.canvas.width, this.canvas.height] = size;
+        this.gl.viewport(0, 0, 1, 1);
     }
     get size() { return [this.canvas.width, this.canvas.height] }
 
     set shader(fragSource){
-        const vertSource = 'attribute vec2 a_position;varying vec2 fragCoord;uniform mat4 u_matrix;void main(){gl_Position=u_matrix*vec4(a_position,1.0,1.0);fragCoord=a_position;}'
+        const vertSource = `
+            attribute vec2 a_position;
+            varying vec2 fragCoord;
+            void main(){
+                gl_Position = vec4(a_position,1.0,1.0);
+                fragCoord=a_position;
+            }
+        `
         /** @private */
          this.program = GLCanvas.createProgramFromSources(this.gl, vertSource, fragSource);
         const gl = this.gl;
@@ -69,6 +92,8 @@ class GLCanvas {
         gl.enableVertexAttribArray(gl.getAttribLocation(this.program, 'a_position'));
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
         gl.vertexAttribPointer(gl.getAttribLocation(this.program, "a_position"), 2, gl.FLOAT, false, 0, 0);
+
+        gl.useProgram(this.program);
     }
 
     /**
@@ -107,6 +132,7 @@ class GLCanvas {
          */
         function createProgram(gl, ...shaders) {
             const program = gl.createProgram();
+            console.log(shaders);
             for (let shader of shaders) gl.attachShader(program, shader);
             gl.linkProgram(program);
             if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
@@ -116,7 +142,6 @@ class GLCanvas {
             }
             return program;
         }
-
         return createProgram(gl,
             createShader(gl, vertSource, gl.VERTEX_SHADER),
             createShader(gl, fragSource, gl.FRAGMENT_SHADER)
