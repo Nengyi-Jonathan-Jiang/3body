@@ -12,24 +12,15 @@ class GLCanvas {
          */
         this.program = null;
 
-        gl.viewport(0, 0, 1, 1);
-
         /** @private */
         this.buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-        gl.disable(gl.CULL_FACE);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-            // 0, 0,
-            // 1, 0,
-            // 0, 1,
-            // 0, 1,
-            // 1, 0,
-            // 1, 1
-            0, 0,
-            0, 1,
-            1, 0,
-            1, 0,
-            0, 1,
+            -1, -1,
+            1, -1,
+            -1, 1,
+            -1, 1,
+            1, -1,
             1, 1
         ]), gl.STATIC_DRAW);
 
@@ -72,21 +63,21 @@ class GLCanvas {
 
     set size(size) {
         [this.canvas.width, this.canvas.height] = size;
-        this.gl.viewport(0, 0, 1, 1);
+        this.gl.viewport(0, 0, size[0], size[1]);
     }
     get size() { return [this.canvas.width, this.canvas.height] }
 
     set shader(fragSource){
         const vertSource = `
-            attribute vec2 a_position;
+            attribute vec4 a_position;
             varying vec2 fragCoord;
             void main(){
-                gl_Position = vec4(a_position,1.0,1.0);
-                fragCoord=a_position;
+                gl_Position = a_position;
+                fragCoord = vec2(a_position.x, -a_position.y);
             }
         `
         /** @private */
-         this.program = GLCanvas.createProgramFromSources(this.gl, vertSource, fragSource);
+        this.program = GLCanvas.createProgramFromSources(this.gl, vertSource, fragSource);
         const gl = this.gl;
 
         gl.enableVertexAttribArray(gl.getAttribLocation(this.program, 'a_position'));
@@ -106,23 +97,23 @@ class GLCanvas {
         /**
          * @param {WebGLRenderingContext} gl The WebGLRenderingContext to use.
          * @param {string} shaderSource The shader source.
-         * @param {number} shaderType The type of shader.
+         * @param {GLenum} shaderType The type of shader.
          * @returns {WebGLShader} The created shader.
          */
         function createShader(gl, shaderSource, shaderType) {
             const shader = gl.createShader(shaderType);
             gl.shaderSource(shader, shaderSource);
             gl.compileShader(shader);
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                console.log(
-                    "*** Error compiling shader '" + shader + "':" +
-                    gl.getShaderInfoLog(shader) + `\n` +
-                    shaderSource.split('\n').map((l, i) => (i + 1) + ':' + l).join('\n')
-                );
-                gl.deleteShader(shader);
-                return null;
+            if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                return shader;
             }
-            return shader;
+            console.log(
+                "*** Error compiling shader '" + shader + "':" +
+                gl.getShaderInfoLog(shader) + `\n` +
+                shaderSource.split('\n').map((l, i) => (i + 1) + ':' + l).join('\n')
+            );
+            gl.deleteShader(shader);
+            return null;
         }
 
         /**
@@ -132,15 +123,14 @@ class GLCanvas {
          */
         function createProgram(gl, ...shaders) {
             const program = gl.createProgram();
-            console.log(shaders);
             for (let shader of shaders) gl.attachShader(program, shader);
             gl.linkProgram(program);
-            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-                console.log('Error in program linking:' + gl.getProgramInfoLog(program));
-                gl.deleteProgram(program);
-                return null;
+            if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                return program;
             }
-            return program;
+            console.log('Error in program linking:' + gl.getProgramInfoLog(program));
+            gl.deleteProgram(program);
+            return null;
         }
         return createProgram(gl,
             createShader(gl, vertSource, gl.VERTEX_SHADER),
