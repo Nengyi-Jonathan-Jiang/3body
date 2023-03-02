@@ -51,7 +51,7 @@ class Body {
 
 v_planet = [0, 0, 0];
 
-const bodies = [new Body(), new Body(), new Body(), new Body(.001)];
+const bodies = [new Body(), new Body(), new Body(), new Body(.0000001)];
 [bodies[0].pos, bodies[1].pos, bodies[2].pos] = [new Vec(-1, 0, 0), new Vec(.5, -.86, 0), new Vec(.5, .86, 0)];
 bodies[0].velocity = new Vec(0, 1, 0).times(.8);
 bodies[1].velocity = new Vec(-.86, -.5, 0).times(.8);
@@ -107,38 +107,37 @@ function hslToRgb(h, s, l){
 }
 
 const aux = document.createElement('canvas');
-const auxctx = aux.getContext('2d');
-let resolution = 50;
+// const auxctx = aux.getContext('2d');
+// let resolution = 50;
 
 function render() {
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-    aux.width = aux.height = resolution;
+    aux.width = canvas.width = canvas.clientWidth;
+    aux.height = canvas.height = canvas.clientHeight;
 
     ctx.fillStyle =  "#000";
     ctx.strokeStyle = "#FFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    let imgDat = auxctx.getImageData(0, 0, aux.width, aux.height);
-    for(let x = 0; x < resolution; x++){
-        for(let y = 0; y < resolution; y++){
-            let i = y * resolution * 4 + x * 4;
-            let PE = getPE(new Vec(
-                (x * canvas.clientWidth / resolution - canvas.clientWidth / 2) / 30,
-                (y * canvas.clientWidth / resolution - canvas.clientHeight / 2) / 30,
-                0
-            ));
-            let hue = .5 - Math.atan(PE - 2) / Math.PI;
-
-            let [r, g, b] = hslToRgb(hue, 1, .5);
-
-            imgDat.data[i] = r;
-            imgDat.data[i + 1] = g;
-            imgDat.data[i + 2] = b;
-            imgDat.data[i + 3] = 255;
-        }
-    }
-    auxctx.putImageData(imgDat, 0, 0);
+    // let imgDat = auxctx.getImageData(0, 0, aux.width, aux.height);
+    // for(let x = 0; x < resolution; x++){
+    //     for(let y = 0; y < resolution; y++){
+    //         let i = y * resolution * 4 + x * 4;
+    //         let PE = getPE(new Vec(
+    //             (x * canvas.clientWidth / resolution - canvas.clientWidth / 2) / 30,
+    //             (y * canvas.clientHeight / resolution - canvas.clientHeight / 2) / 30,
+    //             0
+    //         ));
+    //         let hue = .5 - Math.atan(PE - 2) / Math.PI;
+    //
+    //         let [r, g, b] = hslToRgb(hue, 1, .5);
+    //
+    //         imgDat.data[i] = r;
+    //         imgDat.data[i + 1] = g;
+    //         imgDat.data[i + 2] = b;
+    //         imgDat.data[i + 3] = 255;
+    //     }
+    // }
+    // auxctx.putImageData(imgDat, 0, 0);
     ctx.drawImage(aux, 0, 0, canvas.width, canvas.height);
 
     for(const body of bodies){
