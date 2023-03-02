@@ -2,14 +2,21 @@ class GLCanvas {
     /** @param {HTMLCanvasElement} [canvas] */
     constructor(canvas) {
         this.canvas = canvas ?? document.createElement('canvas');
-        const gl = this.gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
-        /** @type {WebGLProgram} */
+        /** @private */
+        this.gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
+        const gl = this.gl;
+
+        /**
+         * @private
+         * @type {WebGLProgram}
+         */
         this.program = null;
 
         gl.viewport(0, 0, 1, 1);
 
-        let buffer = this.buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        /** @private */
+        this.buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW);
 
         this.shader = `
@@ -55,7 +62,8 @@ class GLCanvas {
 
     set shader(fragSource){
         const vertSource = 'attribute vec2 a_position;varying vec2 fragCoord;uniform mat4 u_matrix;void main(){gl_Position=u_matrix*vec4(a_position,1.0,1.0);fragCoord=a_position;}'
-        this.program = GLCanvas.createProgramFromSources(this.gl, vertSource, fragSource);
+        /** @private */
+         this.program = GLCanvas.createProgramFromSources(this.gl, vertSource, fragSource);
         const gl = this.gl;
 
         gl.enableVertexAttribArray(gl.getAttribLocation(this.program, 'a_position'));

@@ -106,39 +106,19 @@ function hslToRgb(h, s, l){
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
-const aux = document.createElement('canvas');
-// const auxctx = aux.getContext('2d');
-// let resolution = 50;
+const aux = new GLCanvas(document.createElement('canvas'));
 
 function render() {
-    aux.width = canvas.width = canvas.clientWidth;
-    aux.height = canvas.height = canvas.clientHeight;
+    aux.size = [
+        canvas.width = canvas.clientWidth,
+        canvas.height = canvas.clientHeight
+    ];
 
     ctx.fillStyle =  "#000";
     ctx.strokeStyle = "#FFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // let imgDat = auxctx.getImageData(0, 0, aux.width, aux.height);
-    // for(let x = 0; x < resolution; x++){
-    //     for(let y = 0; y < resolution; y++){
-    //         let i = y * resolution * 4 + x * 4;
-    //         let PE = getPE(new Vec(
-    //             (x * canvas.clientWidth / resolution - canvas.clientWidth / 2) / 30,
-    //             (y * canvas.clientHeight / resolution - canvas.clientHeight / 2) / 30,
-    //             0
-    //         ));
-    //         let hue = .5 - Math.atan(PE - 2) / Math.PI;
-    //
-    //         let [r, g, b] = hslToRgb(hue, 1, .5);
-    //
-    //         imgDat.data[i] = r;
-    //         imgDat.data[i + 1] = g;
-    //         imgDat.data[i + 2] = b;
-    //         imgDat.data[i + 3] = 255;
-    //     }
-    // }
-    // auxctx.putImageData(imgDat, 0, 0);
-    ctx.drawImage(aux, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(aux.canvas, 0, 0, canvas.width, canvas.height);
 
     for(const body of bodies){
         ctx.beginPath();
