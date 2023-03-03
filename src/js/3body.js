@@ -123,7 +123,7 @@ void main(){
     vec3 pos = vec3(xScale * fragCoord.x, yScale * fragCoord.y, 0);
     float PE = G * (m1 / distance(pos, p1) + m2 / distance(pos, p2) + m3 / distance(pos, p3));
      
-    gl_FragColor = vec4(hsl2rgb(0.5 - atan(log(PE) - 0.5) / 3.1415926535, 1.0, 0.5), 1.0);
+    gl_FragColor = vec4(hsl2rgb(0.393 - atan(log(PE) - 0.5) / 4., 1., 0.5 * (1. - 1. / (8.0 * PE + 1.))), 1.);
 }
 `
 
