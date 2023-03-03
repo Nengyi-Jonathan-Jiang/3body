@@ -43,23 +43,64 @@ class Body {
         const {r, R} = this.calc(pos);
         return r.times(G * this.mass / Math.pow(R, 3));
     }
-
-    get_potential_at_pos(pos = new Vec(0, 0, 0)) {
-        const {R} = this.calc(pos);
-        return +(G * this.mass / R);
-    }
 }
 
-v_planet = [0, 0, 0];
 
-const bodies = [new Body(), new Body(), new Body(), new Body(.0000001)];
-[bodies[0].pos, bodies[1].pos, bodies[2].pos] = [new Vec(-1, 0, 0), new Vec(.5, -.86, 0), new Vec(.5, .86, 0)];
-bodies[0].velocity = new Vec(0, 1, 0).times(.8);
-bodies[1].velocity = new Vec(-.86, -.5, 0).times(.8);
-bodies[2].velocity = new Vec(.86, -.5, 0).times(.8);
+let bodies;
 
-let TIME_STEP = .016;
 let STEPS_PER_FRAME = 1;
+let t = 0;
+
+// Stable for ~ 1200 units of time
+let startConditions = {
+    stars: [
+        {
+            position: new Vec(-1, 0, 0),
+            velocity: new Vec(0, 1, 0).times(.8),
+            mass: 1.0,
+        },
+        {
+            position: new Vec(.5, -.86, 0),
+            velocity: new Vec(-.86, -.5, 0).times(.8),
+            mass: 1.0,
+        },
+        {
+            position: new Vec(.5, .86, 0),
+            velocity: new Vec(.86, -.5, 0).times(.8),
+            mass: 1.0,
+        }
+    ],
+    usePlanet: true,
+    planet: {
+        position: new Vec(0, 0, 0),
+        velocity: new Vec(0, 0, 0),
+        mass: 1e-7,
+    }
+};
+
+function reset() {
+    function createBody({mass=1, position=new Vec, velocity=new Vec}) {
+        let res = new Body(mass);
+        res.pos = position.clone();
+        res.velocity = velocity.clone();
+        return res;
+    }
+
+    bodies = [
+        ...startConditions.stars.map(createBody),
+        createBody(startConditions.planet)
+    ];
+    t = 0;
+}
+
+document.getElementById('speed-input').oninput = _ =>{
+    let v = +document.getElementById('speed-input').value;
+    STEPS_PER_FRAME = Math.pow(2, v);
+    document.getElementById('speed-display').innerText = `${Math.round(STEPS_PER_FRAME * 10) / 10}`;
+}
+document.getElementById('reset-btn').onclick = _ => reset();
+
+reset();
 
 /**
  * @param {Body[]} bodies
@@ -78,6 +119,7 @@ function update(bodies, timeStep = 0.016) {
         body.velocity.add(body._acceleration.plus(new_acceleration).times(timeStep / 2));
         body._acceleration = new_acceleration;
     }
+    t += timeStep;
 }
 
 const aux = new GLCanvas(document.createElement('canvas'));
@@ -122,8 +164,18 @@ vec3 hsl2rgb(float h, float s, float l){
 void main(){
     vec3 pos = vec3(xScale * fragCoord.x, yScale * fragCoord.y, 0);
     float PE = G * (m1 / distance(pos, p1) + m2 / distance(pos, p2) + m3 / distance(pos, p3));
+    
+    float hue = .4 + min(.6 * atan(pow(2., log(.4 * PE) + 1.0)), .76);
+    // float dist = pow(distance(pos, p1) * distance(pos, p2) * distance(pos, p3), 1./3.);
+    float dist = 8. / (1. / distance(pos, p1) + 1. / distance(pos, p2) + 1./distance(pos, p3));
+    float lighten = 1.0 - 1.0 / (1.0 + 0.5 * pow(dist, 3.));
+    // float brightness = 0.5; 
+    float brightness = 0.5 * (1. - 1. / (3.0 * PE * PE + 1.));
+    
+    vec3 color = hsl2rgb(hue, 1., brightness);
+    color = 1.0 - (1.0 - color) * lighten;
      
-    gl_FragColor = vec4(hsl2rgb(0.393 - atan(log(PE) - 0.5) / 4., 1., 0.5 * (1. - 1. / (8.0 * PE + 1.))), 1.);
+    gl_FragColor = vec4(color, 1.);
 }
 `
 
@@ -151,39 +203,11 @@ function render() {
     aux.render();
     ctx.drawImage(aux.canvas, 0, 0, canvas.width, canvas.height);
 
-    for(const body of bodies){
-        // save traj
-        body.traj ||= [];
-        body.traj.push(body.pos.clone());
-        while (body.traj.length > 50) body.traj.shift();
-        ctx.beginPath();
-        ctx.moveTo(
-            body.traj[0][0] * 30 + canvas.clientWidth / 2,
-            body.traj[0][1] * 30 + canvas.clientHeight / 2
-        );
-        for (let [x, y] of body.traj.slice(1)) {
-            ctx.lineTo(
-                x * 30 + canvas.clientWidth / 2,
-                y * 30 + canvas.clientHeight / 2
-            )
-        }
-        ctx.stroke();
-        ctx.closePath();
-
-        ctx.beginPath();
-        ctx.arc(
-            body.pos[0] * 30 + canvas.clientWidth / 2,
-            body.pos[1] * 30 + canvas.clientHeight / 2,
-            10 * Math.cbrt(body.mass),
-            0,
-            2 * Math.PI
-        );
-        ctx.stroke();
-        ctx.closePath();
-    }
-
     for(let i = 0; i < STEPS_PER_FRAME; i++)
-        update(bodies, TIME_STEP);
+        update(bodies);
+
+    document.getElementById('time-display').innerText = 't = ' + Math.round(t * 10) / 10;
+
     requestAnimationFrame(render);
 }
 
