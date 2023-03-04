@@ -5,7 +5,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>3-Body-Simulator</title>
     <style>
-	    @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+		@font-face{
+			font-family: 'JetBrains Mono';
+			src: url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2') format('woff2'),
+			url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff/JetBrainsMono-Regular.woff') format('woff'),
+			url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/ttf/JetBrainsMono-Regular.ttf') format('truetype');
+			font-weight: 400;
+			font-style: normal;
+		}
 
         canvas#canvas{
             width: 100vw;
@@ -20,18 +27,35 @@
         }
         div#controls *{
 	        color: white;
-	        font-family: 'Orbitron', sans-serif;
+	        font-family: 'JetBrains Mono', monospace;
 	        background: transparent;
 	        border: 0;
-	        font-size: larger;
+			font-size: medium !important;
 	        padding: 0;
+			cursor: default;
+			outline: none;
         }
         div#controls input[type='range']:hover{
 	        color: initial;
         }
+		div#controls button, div#controls input {
+			cursor: pointer;
+		}
         div#controls button:hover {
-	        font-weight: bold;
+			text-shadow: 1px 1px 8px white;
         }
+		div#controls input[type="number"]{
+			width: 3em;
+		}
+
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+		input[type=number] {
+			-moz-appearance: textfield;
+		}
     </style>
     <script src="src/js/GLCanvas.js"></script>
 </head>
@@ -45,6 +69,46 @@
 		</div>
 		<div>
 			<span id="time-display">t=</span>
+		</div>
+		<div id="starting-conditions">
+			<div>
+				<span>Star 1:</span>
+				<label for="m-1">mass = </label><input type="number" id="m-1" value="1"/>
+			</div>
+			<div>
+				<label for="px-1">px = </label><input type="number" id="px-1" value="1.5"/>
+				<label for="py-1">py = </label><input type="number" id="py-1" value="1"/>
+				<label for="pz-1">pz = </label><input type="number" id="pz-1" value="1"/>
+			</div>
+			<div>
+				<label for="vx-1">vx = </label><input type="number" id="vx-1" value="0"/>
+				<label for="vy-1">vy = </label><input type="number" id="vy-1" value="0"/>
+				<label for="vz-1">vz = </label><input type="number" id="vz-1" value="0.1"/>
+			</div>
+			<div>
+				<span>Star 2:</span>
+				<label for="m-2">mass = </label><input type="number" id="m-2" value="1"/>
+			</div>
+			<div>
+				<label for="px-2">px = </label><input type="number" id="px-2" value="-1"/>
+				<label for="py-2">py = </label><input type="number" id="py-2" value="1"/>
+				<label for="pz-2">pz = </label><input type="number" id="pz-2" value="2"/>
+			</div>
+			<div>
+				<label for="vx-2">vx = </label><input type="number" id="vx-2" value="0"/>
+				<label for="vy-2">vy = </label><input type="number" id="vy-2" value="1"/>
+				<label for="vz-2">vz = </label><input type="number" id="vz-2" value="0"/>
+			</div>
+			<div>
+				<span>Star 3:</span>
+				<label for="m-3">mass = </label><input type="number" id="m-3" value="1"/>
+			</div>
+			<div>
+				<label for="use-planet-input">Use Planet: </label><input id="use-planet-input" type="checkbox"/>
+				<div id="planet">
+
+				</div>
+			</div>
 		</div>
 		<div>
 			<button id="reset-btn">Reset</button>

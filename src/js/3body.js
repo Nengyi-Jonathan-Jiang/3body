@@ -32,15 +32,9 @@ class Body {
         this.mass = mass;
     }
 
-    calc(pos = new Vec(0, 0, 0)) {
-        const r = this.pos.plus(pos.times(-1));
-        const R2 = r.magnitude2;
-        const R = r.magnitude;
-        return {r, R2, R};
-    }
-
     get_field_at_pos(pos = new Vec(0, 0, 0)) {
-        const {r, R} = this.calc(pos);
+        const r = this.pos.plus(pos.times(-1));
+        const R = r.magnitude;
         return r.times(G * this.mass / Math.pow(R, 3));
     }
 }
@@ -56,21 +50,21 @@ let startConditions = {
     stars: [
         {
             position: new Vec(-1, 0, 0),
-            velocity: new Vec(0, 1, 0).times(.8),
-            mass: 1.0,
-        },
-        {
-            position: new Vec(.5, -.86, 0),
-            velocity: new Vec(-.86, -.5, 0).times(.8),
+            velocity: new Vec(0, 1., 0).times(.8),
             mass: 1.0,
         },
         {
             position: new Vec(.5, .86, 0),
             velocity: new Vec(.86, -.5, 0).times(.8),
             mass: 1.0,
+        },
+        {
+            position: new Vec(.5, -.86, 0),
+            velocity: new Vec(-.86, -.5, 0).times(.8),
+            mass: 1.0,
         }
     ],
-    usePlanet: true,
+    usePlanet: false,
     planet: {
         position: new Vec(0, 0, 0),
         velocity: new Vec(0, 0, 0),
@@ -86,9 +80,32 @@ function reset() {
         return res;
     }
 
+    // Load start conditions
+    let [p1, p2, v1, v2] = ['p1','p2','v1','v2'].map(
+        ([a,b]) => new Vec(
+            ...['x','y','z'].map(i => +document.getElementById(`${a}${i}-${b}`).value)
+        )
+    );
+    let [m1, m2, m3] = [1, 2, 3].map(i => +document.getElementById(`m-${i}`).value);
+
+    let cm = p1.times(m1).plus(p2.times(m2)).times(1/(m1+m2+m3));
+    p1.add(cm.times(-1));
+    p2.add(cm.times(-1));
+    let p3 = cm.times(-1);
+    let v3 = v1.times(m1).plus(v2.times(m2)).times(-1/m3);
+
+    startConditions.stars[0].position = p1;
+    startConditions.stars[1].position = p2;
+    startConditions.stars[2].position = p3;
+    startConditions.stars[0].velocity = v1;
+    startConditions.stars[1].velocity = v2;
+    startConditions.stars[2].velocity = v3;
+    startConditions.stars[0].mass = m1;
+    startConditions.stars[1].mass = m2;
+    startConditions.stars[2].mass = m3;
     bodies = [
         ...startConditions.stars.map(createBody),
-        createBody(startConditions.planet)
+        ...(startConditions.usePlanet ? [createBody(startConditions.planet)] : [])
     ];
     t = 0;
 }
@@ -136,8 +153,6 @@ uniform float m3;
 uniform float xScale;
 uniform float yScale;
 
-const float G = 1.0;
-
 float hue2rgb(float p, float q, float t){
     if(t < 0.) t += 1.;
     if(t > 1.) t -= 1.;
@@ -163,13 +178,19 @@ vec3 hsl2rgb(float h, float s, float l){
 
 void main(){
     vec3 pos = vec3(xScale * fragCoord.x, yScale * fragCoord.y, 0);
-    float PE = G * (m1 / distance(pos, p1) + m2 / distance(pos, p2) + m3 / distance(pos, p3));
+    
+    vec3 r1 = vec3((pos - p1).xy / atan(pow(1.5, -p1.z)), 0.),
+         r2 = vec3((pos - p2).xy / atan(pow(1.5, -p2.z)), 0.),
+         r3 = vec3((pos - p3).xy / atan(pow(1.5, -p3.z)), 0.);
+    float d1 = length(r1),
+          d2 = length(r2),
+          d3 = length(r3);
+    
+    float PE = (m1 / d1 + m2 / d2 + m3 / d3);
     
     float hue = .4 + min(.6 * atan(pow(2., log(.4 * PE) + 1.0)), .76);
-    // float dist = pow(distance(pos, p1) * distance(pos, p2) * distance(pos, p3), 1./3.);
-    float dist = 8. / (1. / distance(pos, p1) + 1. / distance(pos, p2) + 1./distance(pos, p3));
+    float dist = 6. / PE;
     float lighten = 1.0 - 1.0 / (1.0 + 0.5 * pow(dist, 3.));
-    // float brightness = 0.5; 
     float brightness = 0.5 * (1. - 1. / (3.0 * PE * PE + 1.));
     
     vec3 color = hsl2rgb(hue, 1., brightness);
