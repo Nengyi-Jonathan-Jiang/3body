@@ -23,17 +23,23 @@
         }
         div#controls{
 	        position: absolute;
-	        padding: 10px;
+			top: 0;
+			left: 0;
+	        padding: 8px;
         }
+		div#controls>*{
+			padding: 2px;
+		}
         div#controls *{
 	        color: white;
 	        font-family: 'JetBrains Mono', monospace;
 	        background: transparent;
 	        border: 0;
-			font-size: medium !important;
 	        padding: 0;
 			cursor: default;
 			outline: none;
+			text-shadow: 1px 1px 8px black;
+			font-size: 13pt;
         }
         div#controls input[type='range']:hover{
 	        color: initial;
@@ -42,10 +48,10 @@
 			cursor: pointer;
 		}
         div#controls button:hover {
-			text-shadow: 1px 1px 8px white;
+			outline: 1px solid white;
         }
 		div#controls input[type="number"]{
-			width: 3em;
+			width: 2em;
 		}
 
 		input::-webkit-outer-spin-button,
@@ -55,6 +61,9 @@
 		}
 		input[type=number] {
 			-moz-appearance: textfield;
+		}
+		div#controls sub {
+			font-size: 70%;
 		}
     </style>
     <script src="src/js/GLCanvas.js"></script>
@@ -72,47 +81,52 @@
 		</div>
 		<div id="starting-conditions">
 			<div>
-				<span>Star 1:</span>
-				<label for="m-1">mass = </label><input type="number" id="m-1" value="1"/>
+				<label for="m-1">m<sub>1</sub> = </label><input type="number" id="m-1" value="1"/>
 			</div>
 			<div>
-				<label for="px-1">px = </label><input type="number" id="px-1" value="1.5"/>
-				<label for="py-1">py = </label><input type="number" id="py-1" value="1"/>
-				<label for="pz-1">pz = </label><input type="number" id="pz-1" value="1"/>
+				<label for="m-2">m<sub>2</sub> = </label><input type="number" id="m-2" value="1"/>
 			</div>
 			<div>
-				<label for="vx-1">vx = </label><input type="number" id="vx-1" value="0"/>
-				<label for="vy-1">vy = </label><input type="number" id="vy-1" value="0"/>
-				<label for="vz-1">vz = </label><input type="number" id="vz-1" value="0.1"/>
+				<label for="m-3">m<sub>3</sub> = </label><input type="number" id="m-3" value="1"/>
 			</div>
 			<div>
-				<span>Star 2:</span>
-				<label for="m-2">mass = </label><input type="number" id="m-2" value="1"/>
+				<label for="px-1">p<sub>1</sub> = &lt;</label>
+				<input type="number" id="px-1" value="1.5"/>
+				<label for="py-1">, </label>
+				<input type="number" id="py-1" value="1"/>
+				<label for="pz-1">, </label>
+				<input type="number" id="pz-1" value="1"/>
+				<span>&gt;</span>
 			</div>
 			<div>
-				<label for="px-2">px = </label><input type="number" id="px-2" value="-1"/>
-				<label for="py-2">py = </label><input type="number" id="py-2" value="1"/>
-				<label for="pz-2">pz = </label><input type="number" id="pz-2" value="2"/>
+				<label for="vx-1">v<sub>1</sub> = &lt;</label>
+				<input type="number" id="vx-1" value="0"/>
+				<label for="vy-1">, </label>
+				<input type="number" id="vy-1" value="0"/>
+				<label for="vz-1">, </label>
+				<input type="number" id="vz-1" value="0.1"/>
+				<span>&gt;</span>
 			</div>
 			<div>
-				<label for="vx-2">vx = </label><input type="number" id="vx-2" value="0"/>
-				<label for="vy-2">vy = </label><input type="number" id="vy-2" value="1"/>
-				<label for="vz-2">vz = </label><input type="number" id="vz-2" value="0"/>
+				<label for="px-2">p<sub>2</sub> = &lt;</label>
+				<input type="number" id="px-2" value="-1"/>
+				<label for="py-2">, </label>
+				<input type="number" id="py-2" value="1"/>
+				<label for="pz-2">, </label>
+				<input type="number" id="pz-2" value="2"/>
+				<span>&gt;</span>
 			</div>
 			<div>
-				<span>Star 3:</span>
-				<label for="m-3">mass = </label><input type="number" id="m-3" value="1"/>
-			</div>
-			<div>
-<!--				<label for="use-planet-input">Use Planet: </label><input id="use-planet-input" type="checkbox"/>-->
-<!--				<div id="planet">-->
-
-<!--				</div>-->
+				<label for="vx-2">v<sub>2</sub> = &lt;</label>
+				<input type="number" id="vx-2" value="0"/>
+				<label for="vy-2">, </label>
+				<input type="number" id="vy-2" value="1"/>
+				<label for="vz-2">, </label>
+				<input type="number" id="vz-2" value="0"/>
+				<span>&gt;</span>
 			</div>
 		</div>
-		<div>
-			<button id="reset-btn">Reset</button>
-		</div>
+		<button id="reset-btn">Reset Simulation</button>
 	</div>
     <script src="src/js/3body.js"></script>
 </body>
