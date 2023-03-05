@@ -13,6 +13,9 @@
 			font-weight: 400;
 			font-style: normal;
 		}
+		*{
+			box-sizing: border-box;
+		}
 
         canvas#canvas{
             width: 100vw;
@@ -25,10 +28,10 @@
 	        position: absolute;
 			top: 0;
 			left: 0;
-	        padding: 8px;
+	        padding: 7px;
         }
-		div#controls>*{
-			padding: 2px;
+		div#controls * {
+			user-select: none;
 		}
         div#controls *{
 	        color: white;
@@ -41,6 +44,9 @@
 			text-shadow: 1px 1px 8px black;
 			font-size: 13pt;
         }
+		div#controls>*{
+			padding: 3px;
+		}
         div#controls input[type='range']:hover{
 	        color: initial;
         }
@@ -64,6 +70,50 @@
 		}
 		div#controls sub {
 			font-size: 70%;
+		}
+		div#controls input[type=range]{
+			-webkit-appearance: none;
+			appearance: none;
+			-moz-appearance: none;
+			background: transparent;
+			width: 5em;
+		}
+		div#controls input[type=range]::-webkit-slider-thumb{
+			-webkit-appearance: none;
+			display: block;
+			background: white;
+			width: .2em;
+			height: .8em;
+			border-radius: 0;
+			position: relative;
+			top: -.3em;
+			border: none;
+		}
+		div#controls input[type=range]::-moz-range-thumb{
+			-moz-appearance: none;
+			display: block;
+			background: white;
+			width: .2em;
+			height: .8em;
+			border-radius: 0;
+			border: none;
+			transform: translateY(.5em);
+		}
+		div#controls input[type=range]::-webkit-slider-runnable-track{
+			-webkit-appearance: none;
+			background: white;
+			height: .2em;
+			border-radius: .1em;
+			position: relative;
+			bottom: .3em;
+		}
+		div#controls input[type=range]::-moz-range-track{
+			-moz-appearance: none;
+			background: white;
+			height: .2em;
+			border: none;
+			border-radius: .1em;
+			transform: translateY(.5em);
 		}
     </style>
     <script src="src/js/GLCanvas.js"></script>
