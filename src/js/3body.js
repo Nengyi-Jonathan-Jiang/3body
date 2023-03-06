@@ -88,7 +88,10 @@ function reset() {
     );
     let [m1, m2, m3] = [1, 2, 3].map(i => +document.getElementById(`m-${i}`).value);
 
-    let p3 = p1.times(m1).plus(p2.times(m2)).times(-1/m3);
+    let cm = p1.times(m1).plus(p2.times(m2)).times(-1/(m1+m2+m3));
+    p1.add(cm);
+    p2.add(cm);
+    let p3 = cm;
     let v3 = v1.times(m1).plus(v2.times(m2)).times(-1/m3);
 
     startConditions.stars[0].position = p1;
